@@ -4,6 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+# TODO:
+# [ ] Create dictionaries of all the mesh properties: elements, nodes
+# [ ] Make plot non-blocking to the main thread
+# [ ] Implement a way to predifine specific nodes
+
 class UniformMeshQuad4():
     '''Create a uniform mesh of a rectangular domain
 
