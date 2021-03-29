@@ -12,7 +12,7 @@ class BarElement2D():
         self._nodes = nodes
 
     def __str__(self):
-        return f'Element {self.elid}: F: {self.fromPoint} T: {self.toPoint} \tL: {self.length:5.2f} \tA: {self.area} \tE: {self.stiff:3.2E}'
+        return f'Element {self.elid}: F: {self.fromPoint} T: {self.toPoint} L: {self.length:5.2f} A: {self.area} E: {self.stiff:3.2E} Dofs: {self.dofs}'
 
     @property
     def elid(self):
@@ -38,8 +38,15 @@ class BarElement2D():
     def length(self):
         return norm(self.toPoint+self.fromPoint)
 
+    @property
+    def dofs(self):
+        ''' returns:  list containing the index of the dof
+            example:  fromNode = 0 -> u=0, v=1
+                      toNode   = 2 -> u=4, v=5'''
+        return [self._fromNode*2, self._fromNode*2+1, self._toNode*2, self._toNode*2+1]
+
 
 if __name__ == '__main__':
-    nodes = {0: [0,0], 1:[0,5]}
-    e = BarElement2D(0, 0, 1, 1, 30e6, nodes)
-    print(e)
+    nodes = {0: [0,0], 1: [5,0], 2: [0,5]}
+    e = BarElement2D(id=0, fromNode=1, toNode=2, area=1, stiff=30e6,nodes=nodes)
+    print(e.dofs)
