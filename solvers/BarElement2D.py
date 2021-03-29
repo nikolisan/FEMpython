@@ -36,7 +36,7 @@ class BarElement2D():
     
     @property
     def length(self):
-        return norm(self.toPoint-self.fromPoint)
+        return norm(self.toPoint+self.fromPoint)
 
 
 if __name__ == '__main__':
