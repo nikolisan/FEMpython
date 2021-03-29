@@ -92,7 +92,7 @@ class UniformMeshQuad4():
             f.write('\nNumber of subdivisions in x, y:\n')
             f.write(f' {self.nx}\t {self.ny}')
             f.write(f'\n----------------------------------------\n')
-
+    
     def save_arrays_to_text(self):
         try:
             self.save_mesh_file()
