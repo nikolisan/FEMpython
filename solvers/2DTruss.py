@@ -86,7 +86,7 @@ def create_global_stiffness_matrix(nodes: dict, elements: BarElement2D, forces: 
     logger.info('Creating global stiffness matrix')
     K = np.zeros([ndofs, ndofs])
     for element in elements.values():
-        logger.info(f'Processing: Element {element}')
+        logger.info(f'Processing: {element}')
         L = element.length
         A = element.area
         E = element.stiff
@@ -141,6 +141,7 @@ def calculate_strain_stress(elements, Ug):
     logger.info('Calculating Strain and Stress')
     stresses = {}
     internalForces = {}
+    strains = {}
     for element in elements.values():
         logger.info(f'Processing: Element {element.elid}')
         E = element.stiff
@@ -159,11 +160,24 @@ def calculate_strain_stress(elements, Ug):
         strain = (q[1] - q[0]) / element.length
         stress = E*strain
 
+        strains[element.elid] = strain
         stresses[element.elid] = stress
         internalForces[element.elid] = internalF
     
-    return stress, internalForces
+    return stresses, strains, internalForces
         
+def print_results(U, F, stresess, strains):
+    print('\nResults:')
+    with np.printoptions(precision=4):
+        print('Nodal Displacements:\n', U)
+    with np.printoptions(precision=2, suppress=True):
+        print('\nExternal and Reactions Forces:\n', F)
+    print('\nStresses:')
+    for key in stresses:
+        print(f'\tElement {key}: {stresses[key]:.2f}')
+    print('\nStrains:')
+    for key in strains:
+        print(f'\tElement {key}: {strains[key]:.4E}')
 
 
 if __name__ == '__main__':
@@ -178,11 +192,13 @@ if __name__ == '__main__':
     Fext = create_ext_force_vector(model['ext_forces'], model['ndofs'])
     Kcondensed, Fcondensed = apply_boundary_conditions(K, Fext, model['restrained_dofs'])
     U = calculate_displacements(Kcondensed, Fcondensed)
-    print('U:\n',U)
+    # print('U:\n',U)
     F = calculate_reaction_forces(model['restrained_dofs'], model['ndofs'], U, K)
-    print('F\n',F)
+    # print('F\n',F)
     Ug = construct_global_displ_matrix(model['restrained_dofs'], model['ndofs'], U)
-    print('UG:\n',Ug)
-    calculate_strain_stress(elements, Ug)
+    # print('UG:\n',Ug)
+    stresses, strains, internalForces = calculate_strain_stress(elements, Ug)
+
+    print_results(Ug, F, stresses, strains)
 
     plt.show()
