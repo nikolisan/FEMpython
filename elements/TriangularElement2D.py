@@ -7,20 +7,30 @@ class TriangularElement2D():
         Parameters:
             id: (int) The id of the element
             points: np.array(3x2) Array of the node coordinates
+            nodes: (list(int)) List containing the ids of the vertices
             thickness: (float) The thickness of the element
             stiffness: (float) Young's modulus of the material
             poisson: (float) Poisson's ration of the material
     '''
-    def __init__(self, id, points, thickness, stiffness, poisson):
+    def __init__(self, id, points, nodes, thickness, stiffness, poisson):
         self._id = id
         self._thickness = thickness
         self._stiffness = stiffness
         self._poisson = poisson
         self._points = points
+        self._nodes = nodes
+
+    @property
+    def id(self):
+        return self._id
 
     @property
     def points(self):
         return self._points
+
+    @property
+    def nodes(self):
+        return self._nodes
 
     @property
     def stiff(self):
@@ -39,7 +49,7 @@ class TriangularElement2D():
         # points = np.array([ [xi, yi], [xj, yj], [xk, yk] ])
         xi = self.points[0,0]
         xj = self.points[1,0]
-        xk = self.points[1,0]
+        xk = self.points[2,0]
         yi = self.points[0,1]
         yj = self.points[1,1]
         yk = self.points[2,1]
@@ -55,7 +65,7 @@ class TriangularElement2D():
         # points = np.array([ [xi, yi], [xj, yj], [xk, yk] ])
         xi = self.points[0,0]
         xj = self.points[1,0]
-        xk = self.points[1,0]
+        xk = self.points[2,0]
         yi = self.points[0,1]
         yj = self.points[1,1]
         yk = self.points[2,1]
@@ -66,8 +76,21 @@ class TriangularElement2D():
         a3 = xj - xi
         b3 = yi - yj
         Cb = 1 / (2*self.area)
-        B = np.array([[b1, 0, b2, 0, b3, 0], [0, a1, 0, a2, 0, a3], [a1, b1, a2, b2, a3, b3]])
+        B = np.array([
+            [b1, 0, b2, 0, b3, 0], 
+            [0, a1, 0, a2, 0, a3], 
+            [a1, b1, a2, b2, a3, b3]
+            ])
         return Cb*B
+        # return B
+
+    @property
+    def dofs(self):
+        dofs_list = []
+        for node in self.nodes:
+            dofs_list.append(node*2)
+            dofs_list.append(node*2+1)
+        return dofs_list
 
 
 class TriangularPlaneStressElement(TriangularElement2D):
@@ -87,6 +110,7 @@ class TriangularPlaneStressElement(TriangularElement2D):
         Cd = self.stiff / (1-self.poisson**2)
         D = np.array([[1, self.poisson, 0], [self.poisson, 1, 0], [0, 0, ((1-self.poisson)/2)]])
         return Cd*D
+        # return D
 
     @property
     def stiffness_matrix(self):
@@ -96,9 +120,17 @@ class TriangularPlaneStressElement(TriangularElement2D):
         A = self.area
         K = np.transpose(B).dot(D).dot(B)
         return t*A*K
+        # return K
+
 
 
 if __name__ == '__main__':
-    points = np.array([[0,0],[1,0],[0,1]])
-    element = TriangularPlaneStressElement(1, points, 0.1, 3e9, 0.333)
-    print(element.stiffness_matrix)
+    # points = np.array([[0,0],[2,0],[0,1]])
+    points = np.array([[2,0],[1.5,1.5],[0,1]])
+    element = TriangularPlaneStressElement(1, points, [1, 3, 2], 0.1, 3e9, 0.333)
+    print('AREA: ', element.area)
+    with np.printoptions(precision=3, suppress=True):
+        print(element.b_matrix.T)
+        print(element.elasticity_matrix)
+        print(element.b_matrix)
+        print(element.stiffness_matrix)

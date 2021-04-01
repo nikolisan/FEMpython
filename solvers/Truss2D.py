@@ -83,7 +83,7 @@ def create_transformation_matrix(element):
     transformMatrix = np.array([[cosphi, sinphi, 0, 0], [-sinphi, cosphi, 0, 0], [0, 0, cosphi, sinphi], [0, 0, -sinphi, cosphi]])
     return transformMatrix
 
-def create_global_stiffness_matrix(nodes: dict, elements: BarElement2D, forces: dict, areas: dict, ndofs: int):
+def create_global_stiffness_matrix(nodes: dict, elements: BarElement2D, ndofs: int):
     logger.info('Creating global stiffness matrix')
     K = np.zeros([ndofs, ndofs])
     for element in elements.values():
@@ -192,7 +192,7 @@ def main():
     ext_forces = model['ext_forces']
     plot_system(nodes, elements, ext_forces)
 
-    K = create_global_stiffness_matrix(nodes, elements, model['ext_forces'], model['areas'], model['ndofs'])
+    K = create_global_stiffness_matrix(nodes, elements, model['ndofs'])
     Fext = create_ext_force_vector(model['ext_forces'], model['ndofs'])
     Kcondensed, Fcondensed = apply_boundary_conditions(K, Fext, model['restrained_dofs'])
     U = calculate_displacements(Kcondensed, Fcondensed)
