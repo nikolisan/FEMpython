@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.linalg import inv
 from math import sqrt
 
 
@@ -19,6 +20,9 @@ class TriangularElement2D():
         self._poisson = poisson
         self._points = points
         self._nodes = nodes
+        self._displacements = None
+        self._stress = None
+        self._strain = None
 
     @property
     def id(self):
@@ -60,7 +64,11 @@ class TriangularElement2D():
         return sqrt(s*(s-side_a)*(s-side_b)*(s-side_c))
 
     @property
-    def b_matrix(self):
+    def centroid(self):
+        return self.points.mean(axis=0)
+
+    @property
+    def a_matrix(self):
         # relates strains at any points within the element to nodal displacements
         # points = np.array([ [xi, yi], [xj, yj], [xk, yk] ])
         xi = self.points[0,0]
@@ -69,20 +77,30 @@ class TriangularElement2D():
         yi = self.points[0,1]
         yj = self.points[1,1]
         yk = self.points[2,1]
-        a1 = xk - xj
-        b1 = yj - yk
-        a2 = xi - xk
-        b2 = yk - yi
-        a3 = xj - xi
-        b3 = yi - yj
-        Cb = 1 / (2*self.area)
-        B = np.array([
-            [b1, 0, b2, 0, b3, 0], 
-            [0, a1, 0, a2, 0, a3], 
-            [a1, b1, a2, b2, a3, b3]
-            ])
-        return Cb*B
-        # return B
+        A = np.array([
+            [1, xi, yi, 0, 0, 0],
+            [0, 0 ,0 , 1, xi, yi],
+            [1, xj, yj, 0, 0, 0],
+            [0, 0 ,0 , 1, xj, yj],
+            [1, xk, yk, 0, 0, 0],
+            [0, 0 ,0 , 1, xk, yk],
+        ])
+        return A
+    
+    @property
+    def c_matrix(self):
+        # relates strains at any points within the element to nodal displacements
+        # points = np.array([ [xi, yi], [xj, yj], [xk, yk] ])
+        C = np.array([
+            [0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 1],
+            [0, 0, 1, 0, 1, 0]
+        ])
+        return C
+
+    @property
+    def b_matrix(self):
+        return self.c_matrix.dot(inv(self.a_matrix))
 
     @property
     def dofs(self):
@@ -91,6 +109,31 @@ class TriangularElement2D():
             dofs_list.append(node*2)
             dofs_list.append(node*2+1)
         return dofs_list
+
+    @property
+    def displacements(self):
+        return self._displacements
+
+    @displacements.setter
+    def displacements(self, u):
+        self._displacements = u
+
+    @property
+    def stress(self):
+        return self._stress
+
+    @stress.setter
+    def stress(self, s):
+        self._stress = s
+
+    @property
+    def strain(self):
+        return self._strain
+
+    @strain.setter
+    def strain(self, s):
+        self._strain = s
+
 
 
 class TriangularPlaneStressElement(TriangularElement2D):
@@ -125,10 +168,12 @@ class TriangularPlaneStressElement(TriangularElement2D):
 
 
 if __name__ == '__main__':
-    # points = np.array([[0,0],[2,0],[0,1]])
-    points = np.array([[2,0],[1.5,1.5],[0,1]])
+    points = np.array([[0,0],[2,0],[0,1]])
+    # points = np.array([[2,0],[1.5,1.5],[0,1]])
     element = TriangularPlaneStressElement(1, points, [1, 3, 2], 0.1, 3e9, 0.333)
     print('AREA: ', element.area)
+    print(element.nodes)
+    print(element.centroid)
     with np.printoptions(precision=3, suppress=True):
         print(element.b_matrix.T)
         print(element.elasticity_matrix)
