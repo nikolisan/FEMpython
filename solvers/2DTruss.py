@@ -3,7 +3,8 @@ from numpy.linalg import norm
 from scipy.linalg import inv
 import matplotlib.pyplot as plt
 from loguru import logger
-from BarElement2D import BarElement2D
+
+from elements.BarElement2D import BarElement2D
     
 
 def set_geo_data():
@@ -180,25 +181,28 @@ def print_results(U, F, stresess, strains):
         print(f'\tElement {key}: {strains[key]:.4E}')
 
 
-if __name__ == '__main__':
-    model = set_geo_data()
-    model['elements'] = create_elements(model)
-    nodes = model['nodes']
-    elements = model['elements']
-    ext_forces = model['ext_forces']
-    plot_system(nodes, elements, ext_forces)
-    
-    K = create_global_stiffness_matrix(nodes, elements, model['ext_forces'], model['areas'], model['ndofs'])
-    Fext = create_ext_force_vector(model['ext_forces'], model['ndofs'])
-    Kcondensed, Fcondensed = apply_boundary_conditions(K, Fext, model['restrained_dofs'])
-    U = calculate_displacements(Kcondensed, Fcondensed)
-    # print('U:\n',U)
-    F = calculate_reaction_forces(model['restrained_dofs'], model['ndofs'], U, K)
-    # print('F\n',F)
-    Ug = construct_global_displ_matrix(model['restrained_dofs'], model['ndofs'], U)
-    # print('UG:\n',Ug)
-    stresses, strains, internalForces = calculate_strain_stress(elements, Ug)
+################
+##  MAIN RUN  ##
+################
 
-    print_results(Ug, F, stresses, strains)
+model = set_geo_data()
+model['elements'] = create_elements(model)
+nodes = model['nodes']
+elements = model['elements']
+ext_forces = model['ext_forces']
+plot_system(nodes, elements, ext_forces)
 
-    plt.show()
+K = create_global_stiffness_matrix(nodes, elements, model['ext_forces'], model['areas'], model['ndofs'])
+Fext = create_ext_force_vector(model['ext_forces'], model['ndofs'])
+Kcondensed, Fcondensed = apply_boundary_conditions(K, Fext, model['restrained_dofs'])
+U = calculate_displacements(Kcondensed, Fcondensed)
+# print('U:\n',U)
+F = calculate_reaction_forces(model['restrained_dofs'], model['ndofs'], U, K)
+# print('F\n',F)
+Ug = construct_global_displ_matrix(model['restrained_dofs'], model['ndofs'], U)
+# print('UG:\n',Ug)
+stresses, strains, internalForces = calculate_strain_stress(elements, Ug)
+
+print_results(Ug, F, stresses, strains)
+
+plt.show()
