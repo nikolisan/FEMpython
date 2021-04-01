@@ -167,7 +167,7 @@ def calculate_strain_stress(elements, Ug):
     
     return stresses, strains, internalForces
         
-def print_results(U, F, stresess, strains):
+def print_results(U, F, stresses, strains):
     print('\nResults:')
     with np.printoptions(precision=4):
         print('Nodal Displacements:\n', U)
@@ -184,25 +184,25 @@ def print_results(U, F, stresess, strains):
 ################
 ##  MAIN RUN  ##
 ################
+def main():
+    model = set_geo_data()
+    model['elements'] = create_elements(model)
+    nodes = model['nodes']
+    elements = model['elements']
+    ext_forces = model['ext_forces']
+    plot_system(nodes, elements, ext_forces)
 
-model = set_geo_data()
-model['elements'] = create_elements(model)
-nodes = model['nodes']
-elements = model['elements']
-ext_forces = model['ext_forces']
-plot_system(nodes, elements, ext_forces)
+    K = create_global_stiffness_matrix(nodes, elements, model['ext_forces'], model['areas'], model['ndofs'])
+    Fext = create_ext_force_vector(model['ext_forces'], model['ndofs'])
+    Kcondensed, Fcondensed = apply_boundary_conditions(K, Fext, model['restrained_dofs'])
+    U = calculate_displacements(Kcondensed, Fcondensed)
+    # print('U:\n',U)
+    F = calculate_reaction_forces(model['restrained_dofs'], model['ndofs'], U, K)
+    # print('F\n',F)
+    Ug = construct_global_displ_matrix(model['restrained_dofs'], model['ndofs'], U)
+    # print('UG:\n',Ug)
+    stresses, strains, internalForces = calculate_strain_stress(elements, Ug)
 
-K = create_global_stiffness_matrix(nodes, elements, model['ext_forces'], model['areas'], model['ndofs'])
-Fext = create_ext_force_vector(model['ext_forces'], model['ndofs'])
-Kcondensed, Fcondensed = apply_boundary_conditions(K, Fext, model['restrained_dofs'])
-U = calculate_displacements(Kcondensed, Fcondensed)
-# print('U:\n',U)
-F = calculate_reaction_forces(model['restrained_dofs'], model['ndofs'], U, K)
-# print('F\n',F)
-Ug = construct_global_displ_matrix(model['restrained_dofs'], model['ndofs'], U)
-# print('UG:\n',Ug)
-stresses, strains, internalForces = calculate_strain_stress(elements, Ug)
+    print_results(Ug, F, stresses, strains)
 
-print_results(Ug, F, stresses, strains)
-
-plt.show()
+    plt.show()
