@@ -134,8 +134,6 @@ class TriangularElement2D():
     def strain(self, s):
         self._strain = s
 
-
-
 class TriangularPlaneStressElement(TriangularElement2D):
     '''2D Plane Stress Element
         Parameters:
@@ -153,7 +151,6 @@ class TriangularPlaneStressElement(TriangularElement2D):
         Cd = self.stiff / (1-self.poisson**2)
         D = np.array([[1, self.poisson, 0], [self.poisson, 1, 0], [0, 0, ((1-self.poisson)/2)]])
         return Cd*D
-        # return D
 
     @property
     def stiffness_matrix(self):
@@ -163,8 +160,38 @@ class TriangularPlaneStressElement(TriangularElement2D):
         A = self.area
         K = np.transpose(B).dot(D).dot(B)
         return t*A*K
-        # return K
 
+class TriangularPlaneStrainElement(TriangularElement2D):
+    '''2D Plane Strain Element
+        Parameters:
+            id: (int) The id of the element
+            points: np.array(3x2) Array of the node coordinates
+            thickness: (float) The thickness of the element
+            stiffness: (float) Young's modulus of the material
+            poisson: (float) Poisson's ration of the material
+    '''
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @property
+    def elasticity_matrix(self):
+        nu = self.poisson
+        Cd = (self.stiff * (1-nu)) / ((1+nu)*(1-2*nu))
+        D = np.array([
+            [1, nu/(1-nu), 0],
+            [nu/(1-nu), 1, 0],
+            [0, 0, (1-2*nu)/(2-2*nu)]
+        ])
+        return Cd*D
+
+    @property
+    def stiffness_matrix(self):
+        B = self.b_matrix
+        D = self.elasticity_matrix
+        t = self.thickness
+        A = self.area
+        K = np.transpose(B).dot(D).dot(B)
+        return t*A*K
 
 
 if __name__ == '__main__':
