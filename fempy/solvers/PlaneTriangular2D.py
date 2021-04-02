@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.linalg import inv
+from matplotlib import colors
 import matplotlib.pyplot as plt
 import traceback
 from loguru import logger
@@ -217,7 +218,7 @@ class PlaneTriangular2D():
             print(f'\t γ_xy: {element.strain[2]:+.3e}')
 
     # Plot the model geometry
-    def plot_model(self):
+    def plot_model(self, show_nodes=True, show_text=True):
         name = self.model['name']
         nodes = self.model['nodes']
 
@@ -237,18 +238,22 @@ class PlaneTriangular2D():
             tri = [el.nodes for el in elements.values()]
             
             # Plot nodes and node ids
-            ax.scatter(x, y, s=100, color='darkorange', zorder=4)
-            for i, pos in enumerate(zip(x,y)):
-                ax.text(pos[0], pos[1], str(i), color='black', ha='center', va='center', fontsize=8, zorder=5)
+            if show_nodes:
+                ax.scatter(x, y, s=100, color='darkorange', zorder=4)           
             ax.triplot(x, y, triangles=tri, color='slategray')
-            for el in elements.values():
-                ax.text(el.centroid[0], el.centroid[1], str(el.id), color='black', ha='center', va='center', fontsize=10, zorder=5)
+
+            if show_text:
+                for i, pos in enumerate(zip(x,y)):
+                    ax.text(pos[0], pos[1], str(i), color='black', ha='center', va='center', fontsize=8, zorder=5)
+                for el in elements.values():
+                    ax.text(el.centroid[0], el.centroid[1], str(el.id), color='black', ha='center', va='center', fontsize=10, zorder=5)
+
             plt.show(block=False)
         except Exception as e:
             logger.exception(e)
             return None
 
-    def plot_stresses(self):
+    def plot_stresses(self, show_nodes=True, show_text=True):
         try:
             name = self.model['name']
             nodes = self.model['nodes']
@@ -269,11 +274,14 @@ class PlaneTriangular2D():
                 ax.set_xlabel('X')
                 ax.set_ylabel('Y')
                 # Plot nodes as black dots
-                ax.scatter(x, y, color='k', zorder=4)
+                if show_nodes:
+                    ax.scatter(x, y, color='k', zorder=4)
                 ax.set_title(f'Model: {name} - Stress: {stress_name[i]}')
-                tpc = ax.tripcolor(x, y, tri, facecolors=stress[i], edgecolor='k', cmap='coolwarm')
-                for el in elements.values():
-                    ax.text(el.centroid[0], el.centroid[1], str(f'{el.stress[i]:+.3e}'), color='black', ha='center', va='center', fontsize=10, zorder=5)
+                tpc = ax.tripcolor(x, y, tri, facecolors=stress[i], edgecolor='k', norm=colors.CenteredNorm(), cmap='seismic')
+                fig.colorbar(tpc)
+                if show_text:
+                    for el in elements.values():
+                        ax.text(el.centroid[0], el.centroid[1], str(f'{el.stress[i]:+.3e}'), color='black', ha='center', va='center', fontsize=10, zorder=5)
             plt.show()
         except Exception as e:
             logger.exception(e)
