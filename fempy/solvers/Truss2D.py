@@ -5,7 +5,9 @@ import matplotlib.pyplot as plt
 from loguru import logger
 
 from elements.BarElement2D import BarElement2D
-    
+
+# TODO:
+#  - Convert it to a class solver 
 
 def set_geo_data():
     nodes = {0: [0,0], 1: [10,5], 2: [0,10]}

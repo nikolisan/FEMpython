@@ -243,7 +243,7 @@ class PlaneTriangular2D():
             ax.triplot(x, y, triangles=tri, color='slategray')
             for el in elements.values():
                 ax.text(el.centroid[0], el.centroid[1], str(el.id), color='black', ha='center', va='center', fontsize=10, zorder=5)
-            plt.show()
+            plt.show(block=False)
         except Exception as e:
             logger.exception(e)
             return None
@@ -264,7 +264,7 @@ class PlaneTriangular2D():
             
             for i in range(3):
                 stress_name = ['σ_x', 'σ_y', 'τ_xy']
-                fig, ax = plt.subplots(num=f'PlaneTriangular2D: Stress {stress_name[i]} - Model: {name}')
+                fig , ax = plt.subplots(num=f'PlaneTriangular2D: Stress {stress_name[i]} - Model: {name}')
                 ax.set_aspect('equal')
                 ax.set_xlabel('X')
                 ax.set_ylabel('Y')
@@ -274,7 +274,7 @@ class PlaneTriangular2D():
                 tpc = ax.tripcolor(x, y, tri, facecolors=stress[i], edgecolor='k', cmap='coolwarm')
                 for el in elements.values():
                     ax.text(el.centroid[0], el.centroid[1], str(f'{el.stress[i]:+.3e}'), color='black', ha='center', va='center', fontsize=10, zorder=5)
-                plt.show()
+            plt.show()
         except Exception as e:
             logger.exception(e)
             return None
