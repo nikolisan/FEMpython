@@ -277,7 +277,7 @@ class PlaneTriangular2D():
                 if show_nodes:
                     ax.scatter(x, y, color='k', zorder=4)
                 ax.set_title(f'Model: {name} - Stress: {stress_name[i]}')
-                tpc = ax.tripcolor(x, y, tri, facecolors=stress[i], edgecolor='k', norm=colors.CenteredNorm(), cmap='seismic')
+                tpc = ax.tripcolor(x, y, tri, facecolors=stress[i], edgecolor='k', norm=colors.CenteredNorm(), cmap='bwr')
                 fig.colorbar(tpc)
                 if show_text:
                     for el in elements.values():
