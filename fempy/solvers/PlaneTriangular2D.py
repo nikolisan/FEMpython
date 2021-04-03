@@ -195,7 +195,6 @@ class PlaneTriangular2D():
     def print_results(self):
         Ug = self.Ug
         nodes = self.model['nodes']
-        ndofs = self.model['ndofs']
         elements = self.model['elements']
 
         print('\nResults:')
@@ -221,6 +220,7 @@ class PlaneTriangular2D():
     def plot_model(self, show_nodes=True, show_text=True):
         name = self.model['name']
         nodes = self.model['nodes']
+        forces = self.model['forces']
 
         if isinstance(self.model['elements'][0], list):
             self.create_elements()
@@ -247,8 +247,16 @@ class PlaneTriangular2D():
                     ax.text(pos[0], pos[1], str(i), color='black', ha='center', va='center', fontsize=8, zorder=5)
                 for el in elements.values():
                     ax.text(el.centroid[0], el.centroid[1], str(el.id), color='black', ha='center', va='center', fontsize=10, zorder=5)
+            
+            for i, force in enumerate(forces.values()):
+                if force[0] or force[1]:
+                    origin = np.asarray(nodes[i])
+                    Fx = np.asarray(force[0])
+                    Fy = np.asarray(force[1])
+                    print(origin, Fx, Fy)
+                    ax.quiver(*origin, Fx, Fy, pivot='tip', zorder=5)
 
-            plt.show(block=False)
+            plt.show(block=True)
         except Exception as e:
             logger.exception(e)
             return None
