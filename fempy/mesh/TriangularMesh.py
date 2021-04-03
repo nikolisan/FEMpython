@@ -7,9 +7,10 @@ class TriangularMesh():
     '''
     model = {nodes, boundary_nodes, segments}
     '''
-    def __init__(self, model:dict, options='pq0D'):
+    def __init__(self, model:dict, options='pq0D', show_plot=False):
         self._model = model
         self._options = options
+        self.show_plot = show_plot
         self.create_mesh()
 
     def set_points(self):
@@ -72,7 +73,8 @@ class TriangularMesh():
         self._t = tr.triangulate(geometry, self._options)
         self._mesh = self.export_mesh()
         tr.compare(plt, geometry, self._t)
-        plt.show()
+        if self.show_plot:
+            plt.show()
         return self._mesh
 
     @property
@@ -161,6 +163,6 @@ if __name__ == '__main__':
         return {"name": name, "nodes": nodes, "boundary_nodes": boundary_nodes, "segments": segments, "holes": holes, "rdofs": restrained_dofs, "forces": forces, "stiff": E, "poisson": nu, "thick": t, "ndofs":ndofs}
     
     geo = set_geo_data()
-    mesh = TriangularMesh(geo, 'pqa0.05D')
+    mesh = TriangularMesh(geo, 'pqa0.05D', show_plot=True)
 
     model = mesh.model
