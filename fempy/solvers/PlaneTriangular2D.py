@@ -217,7 +217,7 @@ class PlaneTriangular2D():
             print(f'\t γ_xy: {element.strain[2]:+.3e}')
 
     # Plot the model geometry
-    def plot_model(self, show_nodes=True, show_text=True):
+    def plot_model(self, show_nodes=True, show_text=True, blocking=True):
         name = self.model['name']
         nodes = self.model['nodes']
         forces = self.model['forces']
@@ -256,7 +256,7 @@ class PlaneTriangular2D():
                     print(origin, Fx, Fy)
                     ax.quiver(*origin, Fx, Fy, pivot='tip', zorder=5)
 
-            plt.show(block=True)
+            plt.show(block=blocking)
         except Exception as e:
             logger.exception(e)
             return None

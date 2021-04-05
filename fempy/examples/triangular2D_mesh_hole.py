@@ -82,9 +82,9 @@ def set_geo_data():
     return {"name": name, "nodes": nodes, "boundary_nodes": boundary_nodes, "segments": segments, "holes": holes, "rdofs": restrained_dofs, "forces": forces, "stiff": E, "poisson": nu, "thick": t, "ndofs":ndofs}
 
 geo = set_geo_data()
-mesh = TriangularMesh(geo, 'pa.001')
+mesh = TriangularMesh(geo, 'pa.001', show_plot=False)
 model = mesh.model
 solver = Solver(model, 'Stress')
-solver.plot_model(show_nodes=False, show_text=False)
+solver.plot_model(show_nodes=False, show_text=False, blocking=False)
 solver.solve()
 solver.plot_stresses(show_nodes=False, show_text=False)

@@ -1,1 +1,0 @@
-from . import PlaneTriangular2D
