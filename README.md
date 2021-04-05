@@ -41,5 +41,5 @@ You can find more usage examples in the [examples](fempy/examples. folder.
 ---
 
 ## Authors
-* [**Nikolaos Andreakos**](https://github.com/nikolisan) - MSc Civil and Water Engineer
+* [**Nikolaos Andreakos**](https://github.com/nikolisan) - MSc Civil and Water Engineer  
     Find me on [Linked In](https://www.linkedin.com/in/nikolaos-andreakos/)
